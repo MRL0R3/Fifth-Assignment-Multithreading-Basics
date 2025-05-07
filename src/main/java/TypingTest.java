@@ -148,9 +148,9 @@ public class TypingTest {
 
             // Set difficulty
             switch (difficulty) {
-                case 1 -> difficultyTime = 4;  // Easy
-                case 2 -> difficultyTime = 2;  // Medium
-                case 3 -> difficultyTime = 1;  // Hard
+                case 1 -> difficultyTime = 18;  // Easy
+                case 2 -> difficultyTime = 12;  // Medium
+                case 3 -> difficultyTime = 6;  // Hard
             }
 
             // Run the test
