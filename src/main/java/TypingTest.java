@@ -15,7 +15,6 @@ public class TypingTest {
     private static Instant startTime;
     private static Instant endTime;
     private static int correctCount = 0;
-    private static int difficultyTime;
     private static boolean testRunning = true;
 
     public static class InputRunnable implements Runnable {
@@ -40,8 +39,8 @@ public class TypingTest {
             lastInput = "";
             startTime = Instant.now();
 
-            // Calculate timeout based on word length and difficulty
-            long timeoutMillis = wordToTest.length() * difficultyTime * 100L;
+            // Give exactly 5 seconds for each word
+            long timeoutMillis = 5000; // 5 seconds
             long start = System.currentTimeMillis();
 
             // Wait for input or timeout
@@ -50,15 +49,22 @@ public class TypingTest {
                 Thread.sleep(50);
             }
 
-            Duration duration = Duration.between(startTime, Instant.now());
+            Duration duration = Duration.between(startTime,
+                    lastInput.equals(wordToTest) ? endTime : Instant.now());
             durations.add(duration);
 
             System.out.println("You typed: " + lastInput);
             if (lastInput.equals(wordToTest)) {
                 System.out.println("Correct! Time: " + duration.toMillis() + " ms");
                 correctCount++;
+                return; // Move to next word immediately
             } else {
                 System.out.println("Incorrect! The word was: " + wordToTest);
+                // Wait remaining time if incorrect
+                long remainingTime = timeoutMillis - (System.currentTimeMillis() - start);
+                if (remainingTime > 0) {
+                    Thread.sleep(remainingTime);
+                }
             }
         } catch (Exception e) {
             System.out.println("Error during test: " + e.getMessage());
@@ -74,7 +80,6 @@ public class TypingTest {
 
         for (String word : wordsToTest) {
             testWord(word);
-            Thread.sleep(500); // Pause between words
         }
 
         testRunning = false;
@@ -129,29 +134,6 @@ public class TypingTest {
             }
 
             List<String> selectedWords = words.subList(0, Math.min(wordCount, words.size()));
-
-            // Get difficulty level
-            System.out.println("\nSelect difficulty:");
-            System.out.println("1. Easy (more time)");
-            System.out.println("2. Medium");
-            System.out.println("3. Hard (less time)");
-
-            int difficulty = 0;
-            while (difficulty < 1 || difficulty > 3) {
-                try {
-                    System.out.print("Enter choice (1-3): ");
-                    difficulty = Integer.parseInt(scanner.nextLine());
-                } catch (NumberFormatException e) {
-                    System.out.println("Please enter 1, 2, or 3");
-                }
-            }
-
-            // Set difficulty
-            switch (difficulty) {
-                case 1 -> difficultyTime = 4;  // Easy
-                case 2 -> difficultyTime = 2;  // Medium
-                case 3 -> difficultyTime = 1;  // Hard
-            }
 
             // Run the test
             typingTest(selectedWords);
